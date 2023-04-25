@@ -11,6 +11,7 @@ Player = objets.Triangle(fenetre)
 Player.generer_Liste_config_angle()
 Player.dessin()
 Missile = objets.weapon(fenetre)
+tempref = pygame.time.get_ticks()
 pygame.display.update()
 fenetre.fill((0,0,0))
 
@@ -21,6 +22,7 @@ def global_update():
         rect.score()
         Player.dessin()
         Missile.dessin()
+        Missile.tirer(tempref)
         pygame.display.flip()
 
 
@@ -38,6 +40,11 @@ def main():
                     Player.rotation_gauche()
                 if event.key == pygame.K_RIGHT:
                     Player.rotation_droite()
+                if event.key == pygame.K_SPACE:
+                    Missile.initialiser_tir()
+                    Missile.tirer(tempref)
+                if event.key==pygame.K_SPACE:
+                    Player.mouvement()
 
     pygame.quit()
 

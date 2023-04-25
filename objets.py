@@ -42,6 +42,7 @@ class Triangle():
         self.C = (100,120)
         self.x = 100
         self.y = 100
+        self.speed = 25
         self.nb_ro_poss = 12
         self.List_rota = []
         self.current_list_id = 0
@@ -50,30 +51,31 @@ class Triangle():
             self.List_rota.append((2*k*3.1415)/self.nb_ro_poss) #give the angle of self.A
         print(self.List_rota)
 
-    def rotation(self):
-        self.A = (self.size*0.5*np.cos(self.List_rota[self.current_list_id]),self.size*0.5*np.sin(self.List_rota[self.current_list_id]))
-        self.B = (self.size*0.5*np.cos(self.List_rota[self.current_list_id]+(2/3)*3.1415),self.size*0.5*np.sin(self.List_rota[self.current_list_id]+(2/3)*3.1415))
-        self.C = (self.size*0.5*np.cos(self.List_rota[self.current_list_id]+(4/3)*3.1415),self.size*0.5*np.sin(self.List_rota[self.current_list_id]+(4/3)*3.1415))
-
     def rotation2(self):
-        self.A = (self.size*0.4*np.cos(self.List_rota[self.current_list_id])+self.x,self.size*0.4*np.sin(self.List_rota[self.current_list_id])+self.y)
-        self.B = (self.size*0.4*np.cos(self.List_rota[self.current_list_id]+(2/3)*3.1415)+self.x,self.size*0.4*np.sin(self.List_rota[self.current_list_id]+(2/3)*3.1415)+self.y)
-        self.C = (self.size*0.4*np.cos(self.List_rota[self.current_list_id]+(4/3)*3.1415)+self.x,self.size*0.4*np.sin(self.List_rota[self.current_list_id]+(4/3)*3.1415)+self.y)
+        self.A = (self.size*0.2*np.cos(self.List_rota[self.current_list_id])+self.x,self.size*0.2*np.sin(self.List_rota[self.current_list_id])+self.y)
+        self.B = (self.size*0.2*np.cos(self.List_rota[self.current_list_id]+(2/3)*3.1415)+self.x,self.size*0.2*np.sin(self.List_rota[self.current_list_id]+(2/3)*3.1415)+self.y)
+        self.C = (self.size*0.2*np.cos(self.List_rota[self.current_list_id]+(4/3)*3.1415)+self.x,self.size*0.2*np.sin(self.List_rota[self.current_list_id]+(4/3)*3.1415)+self.y)
+
     def rotation_gauche(self):
         if self.current_list_id ==0:
             self.current_list_id = self.nb_ro_poss-1
         else:
             self.current_list_id -=1
         self.rotation2()
+
     def rotation_droite(self):
         if self.current_list_id ==self.nb_ro_poss-1:
             self.current_list_id = 0
         else:
             self.current_list_id +=1
         self.rotation2()
+
     def dessin(self):
         pygame.draw.polygon(self.screen,self.color,(self.A,self.B,self.C))
-
+    def mouvement(self):
+        self.x += np.cos(self.List_rota[self.current_list_id])*self.speed
+        self.y += np.sin(self.List_rota[self.current_list_id])*self.speed
+        self.rotation2()
 
 class weapon(object):
     def __init__(self,screen):
@@ -84,17 +86,23 @@ class weapon(object):
         self.y = 100
         self.hauteur = 5
         self.color = (255,255,255)
+        self.tempref = 0
+        self.has_shoot = False
     def dessin(self):
         pygame.draw.circle(self.screen,self.color,(self.x,self.y),3)
-    def tirer(self):
+    def initialiser_tir(self):
+       self.tempref = pygame.time.get_ticks()
+       self.has_shoot = True
+    def tirer(self,tempref):
+       if pygame.time.get_ticks()>self.tempref+5 and self.has_shoot:
         self.x += self.dx
         self.y += self.dy
 
-def transfert_vers_weapon(Missile,Vaisseau):
-    Missile.x = Vaisseau.x + Vaisseau.middle_x + Missile.hauteur
-    Missile.y = Vaisseau.y + Vaisseau.middle_y + Missile.hauteur
-    Missile.dx = Vaisseau.dx
-    Missile.dy = Vaisseau.dy
+#def transfert_vers_weapon(Missile,Vaisseau):
+#    Missile.x = Vaisseau.B[0] + Missile.hauteur
+ #   Missile.y = Vaisseau.B[0] + Missile.hauteur
+  #  Missile.dx = Vaisseau.dx
+   # Missile.dy = Vaisseau.dy
 
 
 
