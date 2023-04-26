@@ -80,8 +80,7 @@ class Triangle():
 class weapon(object):
     def __init__(self,screen):
         self.screen = screen
-        self.dx = 1
-        self.dy = 1
+        self.speed = 25
         self.x = 100
         self.y = 100
         self.hauteur = 5
@@ -89,22 +88,20 @@ class weapon(object):
         self.tempref = 0
         self.has_shoot = False
     def dessin(self):
-        pygame.draw.circle(self.screen,self.color,(self.x,self.y),3)
+        pygame.draw.circle(self.screen,self.color,(int(self.x),int(self.y)),3)
     def initialiser_tir(self):
        self.tempref = pygame.time.get_ticks()
        self.has_shoot = True
-    def tirer(self,tempref):
-       if pygame.time.get_ticks()>self.tempref+5 and self.has_shoot:
-        self.x += self.dx
-        self.y += self.dy
-
-#def transfert_vers_weapon(Missile,Vaisseau):
-#    Missile.x = Vaisseau.B[0] + Missile.hauteur
- #   Missile.y = Vaisseau.B[0] + Missile.hauteur
-  #  Missile.dx = Vaisseau.dx
-   # Missile.dy = Vaisseau.dy
 
 
+def transfert_vers_weapon(Missile,Vaisseau):
+    Missile.x = Vaisseau.A[0]
+    Missile.y = Vaisseau.A[1]
+
+def tirer(Missile,Vaisseau,tempref):
+       if pygame.time.get_ticks()>Missile.tempref+5 and Missile.has_shoot:
+        Missile.x += np.cos(Vaisseau.List_rota[Vaisseau.current_list_id])*Missile.speed
+        Missile.y += np.sin(Vaisseau.List_rota[Vaisseau.current_list_id])*Missile.speed
 
 
 
