@@ -14,18 +14,24 @@ Missile = objets.weapon(fenetre)
 Missile1 = objets.weapon(fenetre)
 Missile2 = objets.weapon(fenetre)
 Missile3 = objets.weapon(fenetre)
-Missile4 = objets.weapon(fenetre)
-Missile5 = objets.weapon(fenetre)
-Missile6 = objets.weapon(fenetre)
-Missile7 = objets.weapon(fenetre)
-Liste_missiles_dispo = []
-tempref = pygame.time.get_ticks()
+stock = objets.stock_missiles(fenetre)
+stock.add_missiles()
 pygame.display.update()
 fenetre.fill((0,0,0))
 
-def remplir_liste_dispo():
-    for k in range(0,8):
-        Liste_missiles_dispo.append(1)
+def id_tirer(stock):
+    for n in range(0,stock.nb_missiles):
+        if stock.liste_missiles_valides[n]==1:
+            return(n)
+    return(stock.nb_missiles+1)
+
+def missiles_a_lancer():
+    for s in range(0,stock.nb_missiles):
+        if stock.liste_missiles_valides[s]==0:
+            objets.tirer(stock.missile[s],Player,stock.missile[s].tempref)
+            stock.missile[s].dessin()
+
+
 
 
 def global_update():
@@ -33,10 +39,9 @@ def global_update():
         fenetre.fill((0,0,0))
         rect.dessin()
         rect.score()
+        Player.rebond_mur()
         Player.dessin()
-        if Missile.has_shoot:
-            objets.tirer(Missile,Player,tempref)
-            Missile.dessin()
+        missiles_a_lancer()
         pygame.display.flip()
 
 
@@ -54,14 +59,18 @@ def main():
                     Player.rotation_gauche()
                 if event.key == pygame.K_RIGHT:
                     Player.rotation_droite()
-                if event.key == pygame.K_SPACE:
-                    Missile.initialiser_tir()
-                    Missile.tirer(tempref)
                 if event.key==pygame.K_UP:
                     Player.mouvement()
                 if event.key==pygame.K_DOWN:
-                    objets.transfert_vers_weapon(Missile,Player)
-                    Missile.initialiser_tir()
+                    stock.update_missile_valide()
+                    stock.current_missile_shoot_id =id_tirer(stock)
+
+                    if stock.current_missile_shoot_id!=stock.nb_missiles +1:
+                        objets.transfert_vers_vaisseau(stock.missile[stock.current_missile_shoot_id],Player)
+                        stock.missile[stock.current_missile_shoot_id].initialiser_tir()
+                        stock.liste_missiles_valides[stock.current_missile_shoot_id] = 0
+                        print("val",stock.current_missile_shoot_id)
+
 
     pygame.quit()
 
