@@ -18,7 +18,7 @@ stock = objets.stock_missiles(fenetre)
 stock.add_missiles()
 pygame.display.update()
 fenetre.fill((0,0,0))
-
+O = objets.ennemy(fenetre)
 def id_tirer(stock):
     for n in range(0,stock.nb_missiles):
         if stock.liste_missiles_valides[n]==1:
@@ -42,6 +42,9 @@ def global_update():
         Player.rebond_mur()
         Player.dessin()
         missiles_a_lancer()
+        O.mouvement()
+        O.dessin()
+        objets.tir_missile_vers_joueur_global(O.missile[0],Player,O)
         pygame.display.flip()
 
 
@@ -69,7 +72,6 @@ def main():
                         objets.transfert_vers_vaisseau(stock.missile[stock.current_missile_shoot_id],Player)
                         stock.missile[stock.current_missile_shoot_id].initialiser_tir()
                         stock.liste_missiles_valides[stock.current_missile_shoot_id] = 0
-                        print("val",stock.current_missile_shoot_id)
 
 
     pygame.quit()

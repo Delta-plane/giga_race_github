@@ -49,10 +49,10 @@ class Triangle():
         self.current_list_id = 0
         self.limit_wall = 30
         self.rebound_strenght =38
+        self.temps_ref = 0
     def generer_Liste_config_angle(self):
         for k in range(0,self.nb_ro_poss):
             self.List_rota.append((2*k*3.1415)/self.nb_ro_poss) #give the angle of self.A
-        print(self.List_rota)
 
     def rotation2(self):
         self.A = (self.size*self.coeff*np.cos(self.List_rota[self.current_list_id])+self.x,self.size*self.coeff*np.sin(self.List_rota[self.current_list_id])+self.y)
@@ -79,11 +79,7 @@ class Triangle():
         self.x += np.cos(self.List_rota[self.current_list_id])*self.speed
         self.y += np.sin(self.List_rota[self.current_list_id])*self.speed
         self.rotation2()
-    def rebond_mur_2(self):
-        if self.x<self.limit_wall or self.x>screen_size_x - self.limit_wall or self.y<self.limit_wall or self.y>screen_size_y - self.limit_wall:
-            self.x += np.cos(self.List_rota[self.current_list_id])*self.rebound_strenght*-1
-            self.y += np.sin(self.List_rota[self.current_list_id])*self.rebound_strenght*-1
-            self.rotation2()
+
     def rebond_mur(self):
         if self.x<self.limit_wall:
             self.x += self.rebound_strenght
@@ -93,6 +89,10 @@ class Triangle():
             self.y += self.rebound_strenght
         elif self.y>screen_size_y - self.limit_wall:
             self.y -= self.rebound_strenght
+    def init_temps_ref(self):
+        self.temps_ref = pygame.time.get_ticks()
+
+
 
 class weapon(object):
     def __init__(self,screen):
@@ -126,11 +126,58 @@ class stock_missiles(object):
             if self.missile[k].tempref+self.time_ms_before_shoot<pygame.time.get_ticks() and not self.missile[k].has_shoot:
                 self.liste_missiles_valides[k] = 1
 
+class ennemy(object):
+    def __init__(self,screen):
+        self.screen = screen
+        self.color = (255,255,255)
+        self.size = 20
+        self.x = 0.9*screen_size_y+1
+        self.y = 0.9*screen_size_x+1
+        self.speed = 10
+        self.coeff = 0.25
+        self.move_delay = 250
+        self.nb_missiles = 4
+        self.missile = [weapon(screen) for i in range(0,4)]
+        self.joueur_x_ref = 100
+        self.joueur_y_ref = 100
+        self.diviser_vit_tir = 50
+        self.tempref_tir = pygame.time.get_ticks()
+        self.tir_delay = 5000 #time before each shoot in ms
 
+    def dessin(self):
+        pygame.draw.circle(self.screen,self.color,(int(self.x),int(self.y)),self.size)
+
+    def mouvement(self):
+        if self.x >= screen_size_x*0.9 and self.y <=screen_size_y*0.9:
+            self.y += self.speed
+        if self.x <= screen_size_x*0.1 and self.y > screen_size_y*0.1:
+            self.y -= self.speed
+        if self.y <= screen_size_y*0.1 and self.x <screen_size_x*0.9:
+            self.x +=self.speed
+        if self.y >= screen_size_y*0.9 and self.x >=screen_size_x*0.1:
+            self.x -=self.speed
+
+
+class all_ennemies(object):
+    def _init__(self,screen):
+        self.current_ennemies = 1
+        self.max_ennemies = 10
+        self.screen = screen
+        self.ennemies = [ennemy(self.screen) for i in range(self.max_ennemies)]
+        self.ennemies_can_respawn = [0 for i in range(self.max_ennemies)] # 0 = inactif 1=actif
+        self.respawn_time = 10000 #ms, will decrease step by step
+
+    def update_ennemis_valides(self):
+        for k in range(self.max_ennemies):
+            if self.respawn_time+self.ennemies[k].temps_ref>pygame.time.get_ticks():
+                self.ennemies_can_respawn[k] = 1
 
 def transfert_vers_vaisseau(Missile,Vaisseau):
     Missile.x = Vaisseau.A[0]
     Missile.y = Vaisseau.A[1]
+def transfert_missile_vers_ennemy(Missile,Ennemy):
+    Missile.x = Ennemy.x
+    Missile.y = Ennemy.y
 
 def tirer(Missile,Vaisseau,tempref):
        if pygame.time.get_ticks()>Missile.tempref and Missile.has_shoot:
@@ -139,7 +186,23 @@ def tirer(Missile,Vaisseau,tempref):
         if pygame.time.get_ticks()>Missile.tempref+1000:
             Missile.has_shoot = False
 
+def viser_vaisseau(Vaisseau,Ennemy):
 
+    Ennemy.joueur_x_ref = (Vaisseau.x-Ennemy.x)/Ennemy.diviser_vit_tir
+    Ennemy.joueur_y_ref = (Vaisseau.y-Ennemy.y)/Ennemy.diviser_vit_tir
+
+def tirer_vers_joueur(Missile,Vaisseau,Ennemy):
+    Missile.x += Ennemy.joueur_x_ref
+    Missile.y += Ennemy.joueur_y_ref
+
+def tir_missile_vers_joueur_global(Missile,Vaisseau,Ennemy): # gere les tirs des ennnemies et donc transfert_missiles_vers_ennemy + viser vaisseau + tirer vers joueur
+    if pygame.time.get_ticks() > Ennemy.tempref_tir + Ennemy.tir_delay:
+        viser_vaisseau(Vaisseau,Ennemy)
+        transfert_missile_vers_ennemy(Missile,Ennemy)
+        Ennemy.tempref_tir = pygame.time.get_ticks()
+    else:
+        tirer_vers_joueur(Missile,Vaisseau,Ennemy)
+        Missile.dessin()
 
 
 
