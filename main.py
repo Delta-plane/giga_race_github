@@ -6,6 +6,7 @@ from Ennemy import*
 from Carre_centre import*
 from Vaisseau import*
 from Missiles import*
+from Interactions import*
 from Limite_bordure import*
 from Limite_carre_central import*
 fenetre = pygame.display.set_mode((screen_size_x,screen_size_y))
@@ -15,20 +16,18 @@ Player.teleport()
 Player.dessin()
 
 stock = stock_missiles(fenetre)
-stock.add_missiles()
-
-Opponent = basic_ennemy(fenetre)
+stock_ennemies = all_ennemies(fenetre)
 pygame.display.update()
 fenetre.fill((0,0,0))
 
 def global_update():
     fenetre.fill((0,0,0))
     Player.dessin()
-    stock.dessin_missiles_valide(Opponent)
-    Opponent.dessin()
-    Opponent.mouvement()
-    if Opponent.rect.colliderect(stock.missile[0].rect):
-        print("uwu")
+    stock_ennemies.dessin_ennemis_valide()
+    rect.dessin()
+    Player.stock.dessin_missiles_valide()
+    Player.rebond_carre(rect)
+    verifier_les_collisions(stock_ennemies,Player)
     pygame.time.delay(30)
     pygame.display.update()
 
@@ -42,11 +41,7 @@ def main():
                 if event.key == K_q:
                     pygame.quit()
                 if event.key == K_DOWN:
-                    stock.update_missile_valide()
-                    stock.current_missile_shoot_id =stock.id_tirer()
-                    if stock.current_missile_shoot_id!=stock.nb_missiles +1:
-                        stock.missile[stock.current_missile_shoot_id].initialiser_tir(Player)
-                        stock.liste_missiles_valides[stock.current_missile_shoot_id] = 0
+                    Player.gerer_tir()
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             Player.rotation_gauche2()

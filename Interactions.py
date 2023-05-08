@@ -1,41 +1,33 @@
 import pygame
 import numpy as np
-def transfert_vers_vaisseau(Missile,Vaisseau): #vaisseau
-    Missile.x = Vaisseau.A[0]
-    Missile.y = Vaisseau.A[1]
-    
-def viser_avec_vaisseau(Missile,Vaisseau):
-    Missile.ref_vise_x = np.cos(Vaisseau.List_rota[Vaisseau.current_list_id])
-    Missile.ref_vise_y = np.sin(Vaisseau.List_rota[Vaisseau.current_list_id])
-
-
-def tirer(Missile,Vaisseau,tempref): #vaisseau
-       if pygame.time.get_ticks()>Missile.tempref and Missile.has_shoot:
-        Missile.x += Missile.ref_vise_x*Missile.speed
-        Missile.y += Missile.ref_vise_y*Missile.speed
-        if pygame.time.get_ticks()>Missile.tempref+1000:
-            Missile.has_shoot = False
-
-
-
-def transfert_missile_vers_ennemy(Missile,Ennemy):
-    Missile.x = Ennemy.x
-    Missile.y = Ennemy.y
-
-def viser_vaisseau(Vaisseau,Ennemy):
-
-    Ennemy.joueur_x_ref = (Vaisseau.x-Ennemy.x)/Ennemy.diviser_vit_tir
-    Ennemy.joueur_y_ref = (Vaisseau.y-Ennemy.y)/Ennemy.diviser_vit_tir
-
-def tirer_vers_joueur(Missile,Vaisseau,Ennemy):
-    Missile.x += Ennemy.joueur_x_ref
-    Missile.y += Ennemy.joueur_y_ref
-
-def tir_missile_vers_joueur_global(Missile,Vaisseau,Ennemy): # gere les tirs des ennnemis et donc transfert_missiles_vers_ennemy + viser vaisseau + tirer vers joueur
-    if pygame.time.get_ticks() > Ennemy.tempref_tir + Ennemy.tir_delay:
-        viser_vaisseau(Vaisseau,Ennemy)
-        transfert_missile_vers_ennemy(Missile,Ennemy)
-        Ennemy.tempref_tir = pygame.time.get_ticks()
+def calc_offset(objet_rect,objet2_rect):
+    offset= (objet_rect[0]-objet2_rect[0], objet_rect[1]-objet2_rect[1])
+    return(offset)
+def calc_overlap(objet_mask,objet2_mask,offset):
+    overlap =objet_mask.overlap(objet2_mask,offset)
+    if overlap is not None:
+        return(True)
     else:
-        tirer_vers_joueur(Missile,Vaisseau,Ennemy)
-        Missile.dessin()
+        return(False)
+
+
+
+def verifier_les_collisions(All_ennemies,Player):
+    for n in range(0,All_ennemies.nb_current_ennemies): #joueur avec ennemis
+        if All_ennemies.ennemies[n].Is_active and Player.Is_active:
+            offset = calc_offset(All_ennemies.ennemies[n].rect,Player.rect)
+            if calc_overlap(All_ennemies.ennemies[n].mask,Player.mask,offset):
+             print("collision entre joueur et l'ennemi numéro:",n)
+            for k in range(0,All_ennemies.ennemies[n].nb_missiles): #balles de l'ennemi avec le joueur
+                if All_ennemies.ennemies[n].missile.has_shoot:
+                    offset = calc_offset(All_ennemies.ennemies[n].missile.rect,Player.rect)
+                    if calc_overlap(All_ennemies.ennemies[n].missile.mask,Player.mask,offset):
+                     print("collision entre le joueur et du missile",k ,"de l'ennemi numéro",n)
+    for s in range(0,All_ennemies.nb_current_ennemies):
+        if All_ennemies.ennemies[s].Is_active and Player.Is_active:
+            for j in range(0,Player.nb_missiles):
+                offset = calc_offset(Player.stock.missile[j].rect,All_ennemies.ennemies[s].rect)
+                if calc_overlap(Player.stock.missile[j].mask,All_ennemies.ennemies[s].mask,offset):
+                    print("collison entre le missile ",j,"du joueur et l'ennemi numero",s)
+
+
