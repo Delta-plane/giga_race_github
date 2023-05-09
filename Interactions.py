@@ -20,7 +20,7 @@ def collisions_Player_Ennemy(Player,All_ennemies):
                 if All_ennemies.ennemies[n].missile.has_shoot:
                     offset = calc_offset(All_ennemies.ennemies[n].missile.rect,Player.rect)
                     if calc_overlap(All_ennemies.ennemies[n].missile.mask,Player.mask,offset):
-                     print("collision entre le joueur et du missile",k ,"de l'ennemi numéro",n)
+                     print("collision entre le joueur et le missile",k ,"de l'ennemi numéro",n)
 
 def collisions_Balles_Joueur_Ennemy(Player,All_ennemies,rect):
     for s in range(0,All_ennemies.nb_current_ennemies): #balles du joueur avec l'ennemi
@@ -32,6 +32,8 @@ def collisions_Balles_Joueur_Ennemy(Player,All_ennemies,rect):
                         if calc_overlap(Player.stock.missile[j].mask,All_ennemies.ennemies[s].mask,offset) is not None:
                             rect.increase_score(All_ennemies.ennemies[s].value_when_killed)
                             All_ennemies.ennemies[s].despawn()
+                            All_ennemies.ennemies_2_kill -=1
+                            print(All_ennemies.ennemies_2_kill)
                             print("collison entre le missile ",j,"du joueur et l'ennemi numero",s)
 
 def collision_joueur_carre(Player,carre):
@@ -45,6 +47,18 @@ def collision_joueur_carre(Player,carre):
                     Player.y+=np.cos(Player.angle*np.pi/180)*Player.speed
                     Player.rect = Player.image1.get_rect(center = (Player.x,Player.y))
 
+def verifier_collisions_respawn(All_ennemies,Player,rect,ennemy,id_ennemy):
+    for n in range(0,id_ennemy):
+            offset = calc_offset(All_ennemies.ennemies[n].rect,ennemy.rect)
+            if calc_overlap(All_ennemies.ennemies[n].mask,ennemy.mask,offset):
+                return(False)
+    offset = calc_offset(ennemy.rect,rect.rect)
+    if calc_overlap(ennemy.mask,rect.mask,offset):
+        return(False)
+    offset = calc_offset(ennemy.rect,Player.rect)
+    if calc_overlap(ennemy.mask,Player.mask,offset):
+        return(False)
+    return(True)
 
 def verifier_les_collisions(All_ennemies,Player,rect):
     collisions_Player_Ennemy(Player,All_ennemies)

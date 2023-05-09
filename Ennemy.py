@@ -5,7 +5,7 @@ import numpy as np
 from random import randint
 class basic_ennemy(object):
     def __init__(self,screen):
-        self.id = "Ennemy"
+        self.id = "Basic-Ennemy"
         self.value_when_killed = 1500
         self.id_perso = 1
         self.screen = screen
@@ -120,6 +120,7 @@ class all_ennemies(object):
     def __init__(self,screen):
         self.screen = screen
         self.current_ennemies = 2
+        self.ennemies_2_kill = self.current_ennemies
         self.max_ennemies = 10
         self.nb_mine_current = 1
         self.nb_basic_ennemy_current = 1
@@ -133,6 +134,9 @@ class all_ennemies(object):
             if self.respawn_time+self.ennemies[k].tempref_respawn>pygame.time.get_ticks():
                 self.ennemies_can_respawn[k] = 1
     def ajout_ennemis(self):
+        self.ennemies = []
+        for t in range(0,self.nb_basic_ennemy_current):
+            self.ennemies.append(basic_ennemy(self.screen))
         for s in range(self.nb_mine_current):
             self.ennemies.append(Mine(self.screen))
     def dessin_ennemis_valide(self):
@@ -142,7 +146,7 @@ class all_ennemies(object):
                 self.ennemies[s].mouvement()
                self.ennemies[s].dessin()
 
-    def respawn_ennemis_valide(self):
+    def respawn_ennemies_valide(self):
         for s in range(0,self.nb_current_ennemies):
             if not self.ennemies[s].Is_active and self.ennemies_can_respawn[s] == 1:
                 self.ennemies[s].respawn()

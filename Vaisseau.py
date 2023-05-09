@@ -6,6 +6,7 @@ class Space_ship():
     def __init__(self,screen):
         self.Is_active = True
         self.id = "Player"
+        self.life = 3
         self.screen = screen
         self.size = 100
         self.nb_missiles = 4

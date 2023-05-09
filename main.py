@@ -11,6 +11,9 @@ from Updates import*
 from Input import*
 from Limite_bordure import*
 from Limite_carre_central import*
+from Niveau import*
+from spawn import*
+
 
 rect=Carre_central(fenetre)
 Player = Space_ship(fenetre)
@@ -23,9 +26,15 @@ fenetre.fill((0,0,0))
 
 
 def main():
-    continuer = True
-    while continuer:
-        global_update(Player,stock_ennemies,rect)
-        gerer_input(Player)
+    for s in range(2):
+        continuer = True
+        if not stock_ennemies.ennemies_2_kill > 0:
+            print("owo")
+            generer_niveau_2(stock_ennemies,Player,rect)
+        while continuer:
+            global_update(Player,stock_ennemies,rect)
+            gerer_input(Player)
+            if  not stock_ennemies.ennemies_2_kill > 0:
+                continuer = False
 
 main()
