@@ -25,7 +25,7 @@ class basic_ennemy(object):
         self.move_delay = 250
         self.nb_missiles = 4
         self.spawn = (self.x,self.y)
-        self.time_before_respawn = 3000
+        self.time_before_respawn = 1000
         self.tempref_respawn = 0
         self.respawn_case = 0
         self.angle = 3.1415/2
@@ -39,8 +39,9 @@ class basic_ennemy(object):
         self.missile_lifespan = 1000 #time when weapon is active
 
     def dessin(self):
-        self.screen.blit(self.image1,self.rect)
         self.rect = self.image1.get_rect(center=(self.x,self.y))
+        self.screen.blit(self.image1,self.rect)
+        self.mask = pygame.mask.from_surface(self.image1)
 
     def mouvement(self):
         if self.x >= screen_size_x*0.9 and self.y <=screen_size_y*0.9:
@@ -68,7 +69,7 @@ class basic_ennemy(object):
         self.Is_active =False
         self.tempref_respawn = pygame.time.get_ticks()
     def respawn(self):
-        if not self.Is_active and pygame.time.get_ticks() > self.tempref_respawn+self.time_before_respawn:
+        if pygame.time.get_ticks() > self.tempref_respawn+self.time_before_respawn:
             self.respawn_case = randint(0,4)
             if self.respawn_case == 0:
                  self.x = 0.1*screen_size_x
@@ -85,29 +86,63 @@ class basic_ennemy(object):
             self.Is_active=True
 
 
-
-
-
-
-
+class Mine(object):
+    def __init__(self,screen):
+        self.id = "Mine"
+        self.screen =screen
+        self.value_when_killed = 500
+        self.aggrandissement_x = 0.05
+        self.aggrandissement_y = 0.05
+        self.image = pygame.image.load("Tnt.png")
+        self.image = pygame.transform.scale(self.image,(int(screen_size_x*self.aggrandissement_x),int(screen_size_y*self.aggrandissement_y)))
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.size_x = self.image.get_width()
+        self.size_y = self.image.get_height()
+        self.tempref_respawn =0
+        self.nb_missiles = 0
+        self.Is_active = True
+        self.time_before_respawn = 1500
+        self.x= 150
+        self.y = 150
+    def dessin(self):
+        self.screen.blit(self.image,(self.x,self.y))
+        self.rect = self.image.get_rect(center=(self.x,self.y))
+        self.mask = pygame.mask.from_surface(self.image)
+    def despawn(self):
+        self.Is_active =False
+        self.tempref_respawn = pygame.time.get_ticks()
+    def respawn(self):
+        if pygame.time.get_ticks() > self.tempref_respawn+self.time_before_respawn:
+            self.Is_active = True
 
 class all_ennemies(object):
     def __init__(self,screen):
         self.screen = screen
-        self.current_ennemies = 1
+        self.current_ennemies = 2
         self.max_ennemies = 10
-        self.nb_current_ennemies = 1
-        self.ennemies = [basic_ennemy(self.screen) for i in range(self.max_ennemies)]
+        self.nb_mine_current = 1
+        self.nb_basic_ennemy_current = 1
+        self.nb_current_ennemies = 2
+        self.ennemies = [basic_ennemy(self.screen) for i in range(self.nb_basic_ennemy_current)]
         self.ennemies_can_respawn = [0 for i in range(self.max_ennemies)] # 0 = inactif 1=actif
         self.respawn_time = 10000 #ms, will decrease step by step
 
-    def update_ennemis_valides(self):
+    def update_ennemis_valide(self):
         for k in range(0,self.nb_current_ennemies):
-            if self.respawn_time+self.ennemies[k].temps_ref>pygame.time.get_ticks():
+            if self.respawn_time+self.ennemies[k].tempref_respawn>pygame.time.get_ticks():
                 self.ennemies_can_respawn[k] = 1
-
+    def ajout_ennemis(self):
+        for s in range(self.nb_mine_current):
+            self.ennemies.append(Mine(self.screen))
     def dessin_ennemis_valide(self):
         for s in range(0,self.nb_current_ennemies):
             if self.ennemies[s].Is_active:
+               if hasattr(self.ennemies[s],"mouvement"):
                 self.ennemies[s].mouvement()
-                self.ennemies[s].dessin()
+               self.ennemies[s].dessin()
+
+    def respawn_ennemis_valide(self):
+        for s in range(0,self.nb_current_ennemies):
+            if not self.ennemies[s].Is_active and self.ennemies_can_respawn[s] == 1:
+                self.ennemies[s].respawn()

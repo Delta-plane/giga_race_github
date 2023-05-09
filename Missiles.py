@@ -32,11 +32,11 @@ class weapon(object):
     def mouvement(self):
         self.x -= np.sin(self.angle*np.pi/180)*self.speed
         self.y -= np.cos(self.angle*np.pi/180)*self.speed
-    def tirer(self,tempref):
+    def tirer(self,temps_entre_tirs):
         if pygame.time.get_ticks()>self.tempref and self.has_shoot:
             self.x -= np.sin(self.angle*np.pi/180)*self.speed
             self.y -= np.cos(self.angle*np.pi/180)*self.speed
-        if pygame.time.get_ticks()>self.tempref+1000:
+        if pygame.time.get_ticks()>self.tempref+temps_entre_tirs:
             self.has_shoot = False
 class stock_missiles(object):
     def __init__(self,screen):
@@ -58,7 +58,8 @@ class stock_missiles(object):
     def dessin_missiles_valide(self):
         for n in range(0,self.nb_missiles):
             if self.liste_missiles_valides[n] == 0 and self.missile[n].has_shoot:
-                self.missile[n].tirer(self.missile[n].tempref)
+                self.missile[n].tirer(self.time_ms_before_shoot)
+                self.missile[n].mask =pygame.mask.from_surface(self.missile[n].image)
                 self.missile[n].dessin()
 
 

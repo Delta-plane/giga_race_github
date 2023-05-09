@@ -30,6 +30,7 @@ class Space_ship():
         self.limit_wall_x = 30
         self.rebound_strenght =38
         self.temps_ref = 0
+        self.velocité = 0
     def dessin(self):
         self.screen.blit(self.image1,self.rect)
     def rotation_gauche2(self):
@@ -45,16 +46,18 @@ class Space_ship():
     def teleport(self):
         self.screen.blit(self.image0,(250,250))
     def mouvement(self):
+        if self.velocité < 5:
+            self.velocité += 1
         self.x -= np.sin(self.angle*np.pi/180)*self.speed
         self.y -= np.cos(self.angle*np.pi/180)*self.speed
         self.rect = self.image1.get_rect(center = (self.x,self.y))
-    def rebond_carre(self,carre):
-        if self.rect.colliderect(carre.rect):
-            offset = (int(carre.rect.x - self.rect.x), int(carre.rect.y - self.rect.y))
-            overlap = self.mask.overlap(carre.mask, offset)
-            print(overlap)
-            if overlap is not None:
-                    print("Collision au pixel près détectée !")
+    def glisse(self):
+        if (self.velocité>0):
+
+            self.x-=np.sin(self.angle*np.pi/180)*self.velocité
+            self.y-=np.cos(self.angle*np.pi/180)*self.velocité
+            self.velocité-=0.05
+            self.rect = self.image1.get_rect(center = (self.x,self.y))
     def gerer_tir(self):
                     self.stock.update_missile_valide()
                     self.stock.current_missile_shoot_id =self.stock.id_tirer()
