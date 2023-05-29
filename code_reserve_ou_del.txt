@@ -1,6 +1,0 @@
-#rebond_mur_2: (gere mal les rebonds sur le coté)
-    def rebond_mur_2(self):
-        if self.x<self.limit_wall or self.x>screen_size_x - self.limit_wall or self.y<self.limit_wall or self.y>screen_size_y - self.limit_wall:
-            self.x += np.cos(self.List_rota[self.current_list_id])*self.rebound_strenght*-1
-            self.y += np.sin(self.List_rota[self.current_list_id])*self.rebound_strenght*-1
-            self.rotation2()
